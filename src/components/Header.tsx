@@ -7,7 +7,11 @@ import { useEffect, useState } from "react";
 import { SocialIcons } from "./SocialIcons";
 import { SearchBox } from "./SearchBox";
 import { urlForImage } from "@/sanity/image";
-import { accentHex } from "@/lib/constants";
+import {
+  accentHex,
+  PHYSICAL_COPY_URL,
+  SUBMIT_PORTFOLIO_URL,
+} from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import type { CategoryRef, SiteSettings } from "@/lib/types";
 
@@ -61,7 +65,8 @@ export function Header({
   const logoSrc = logo?.asset ? urlForImage(logo).width(600).url() : null;
 
   return (
-    <header className="sticky top-0 z-50 bg-bg/95 backdrop-blur-sm border-b border-rule">
+    <>
+      <header className="sticky top-0 z-50 bg-bg/95 backdrop-blur-sm border-b border-rule">
       {/* Utility row */}
       <div
         className={cn(
@@ -70,19 +75,38 @@ export function Header({
         )}
       >
         <div className="container-page flex items-center justify-between py-1.5">
-          <SocialIcons socials={settings?.socials} />
-          <div className="flex items-center gap-4">
-            {settings?.subscribeUrl ? (
-              <a href={settings.subscribeUrl} className="meta hover:text-pink">
-                Subscribe
-              </a>
-            ) : (
-              <a href="#newsletter" className="meta hover:text-pink">
-                Subscribe
-              </a>
-            )}
-            <a href="#newsletter" className="meta hover:text-pink">
-              Newsletter
+          {/* Mobile: socials left */}
+          <div className="md:hidden">
+            <SocialIcons socials={settings?.socials} />
+          </div>
+          {/* Mobile: Issues right */}
+          <Link
+            href="/issues"
+            className="section-title !text-pink !text-sm md:hidden"
+          >
+            Issues
+          </Link>
+
+          {/* Desktop: social icons + submit / physical links */}
+          <div className="hidden md:block">
+            <SocialIcons socials={settings?.socials} />
+          </div>
+          <div className="hidden md:flex items-center gap-4">
+            <a
+              href={SUBMIT_PORTFOLIO_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="meta hover:text-pink"
+            >
+              Submit portfolio
+            </a>
+            <a
+              href={PHYSICAL_COPY_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="meta hover:text-pink"
+            >
+              Physical copy
             </a>
           </div>
         </div>
@@ -99,10 +123,11 @@ export function Header({
           {/* Mobile hamburger */}
           <button
             type="button"
-            className="md:hidden p-2 -ml-2"
+            className="md:hidden p-3 -ml-3 rounded touch-manipulation active:bg-pink/20"
             aria-label="Open menu"
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen(true)}
+            onPointerUp={() => setMenuOpen(true)}
           >
             <span className="block w-6 h-0.5 bg-ink mb-1.5" />
             <span className="block w-6 h-0.5 bg-ink mb-1.5" />
@@ -182,25 +207,25 @@ export function Header({
           </div>
         ) : null}
       </div>
+      </header>
 
-      {/* Mobile overlay menu */}
+      {/* Mobile overlay menu — rendered outside <header> so its fixed
+          positioning is relative to the viewport, not the header's
+          backdrop-filter containing block. */}
       {menuOpen ? (
         <MobileMenu
-          settings={settings}
           navItems={navItems}
           onClose={() => setMenuOpen(false)}
         />
       ) : null}
-    </header>
+    </>
   );
 }
 
 function MobileMenu({
-  settings,
   navItems,
   onClose,
 }: {
-  settings: SiteSettings | null;
   navItems: { label: string; href: string }[];
   onClose: () => void;
 }) {
@@ -212,7 +237,10 @@ function MobileMenu({
   }, []);
 
   return (
-    <div className="fixed inset-0 z-[60] bg-bg flex flex-col md:hidden">
+    <div
+      className="fixed inset-0 z-[60] flex flex-col md:hidden"
+      style={{ background: "#ffffff" }}
+    >
       <div className="container-page flex items-center justify-between py-3 border-b border-rule">
         <span className="font-head font-extrabold uppercase text-pink text-2xl">
           Harlo
@@ -241,17 +269,27 @@ function MobileMenu({
           </Link>
         ))}
         <div className="mt-6">
-          <SearchBox autoFocus onSubmitted={onClose} />
+          <SearchBox onSubmitted={onClose} />
         </div>
       </nav>
-      <div className="container-page py-6 border-t border-rule flex items-center justify-between">
-        <SocialIcons socials={settings?.socials} />
+      <div className="container-page py-6 border-t border-rule flex flex-col gap-3">
         <a
-          href={settings?.subscribeUrl || "#newsletter"}
+          href={SUBMIT_PORTFOLIO_URL}
+          target="_blank"
+          rel="noreferrer"
+          onClick={onClose}
+          className="section-title !text-pink"
+        >
+          Submit portfolio
+        </a>
+        <a
+          href={PHYSICAL_COPY_URL}
+          target="_blank"
+          rel="noreferrer"
           onClick={onClose}
           className="meta hover:text-pink"
         >
-          Subscribe
+          Get a physical copy
         </a>
       </div>
     </div>

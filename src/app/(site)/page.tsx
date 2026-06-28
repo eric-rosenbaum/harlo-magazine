@@ -5,7 +5,6 @@ import { homepageQuery } from "@/sanity/lib/queries";
 import { ArticleCard } from "@/components/ArticleCard";
 import { SectionTitle } from "@/components/SectionTitle";
 import { CategoryEyebrow } from "@/components/CategoryEyebrow";
-import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { SanityImage } from "@/components/SanityImage";
 import { EmptyState } from "@/components/EmptyState";
 import { JsonLd } from "@/components/JsonLd";
@@ -168,14 +167,6 @@ export default async function HomePage() {
           </div>
         </section>
       ) : null}
-
-      {/* Newsletter */}
-      <section className="mt-20 flex justify-center">
-        <NewsletterSignup
-          heading="Get Harlo in your inbox"
-          blurb="The latest stories and issues, no noise."
-        />
-      </section>
     </div>
   );
 }

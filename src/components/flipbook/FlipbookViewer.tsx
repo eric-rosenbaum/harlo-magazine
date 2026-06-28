@@ -167,13 +167,6 @@ export default function FlipbookViewer({
         </div>
 
         <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => setMode((m) => (m === "flip" ? "scroll" : "flip"))}
-            className="meta hover:text-pink"
-          >
-            {mode === "flip" ? "Scroll view" : "Flip view"}
-          </button>
           {allowDownload ? (
             <a href={url} download className="meta hover:text-pink">
               Download PDF

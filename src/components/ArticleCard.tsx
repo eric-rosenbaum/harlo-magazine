@@ -36,7 +36,7 @@ export function ArticleCard({
               className="transition-transform duration-500 group-hover:scale-[1.02]"
             />
           </div>
-          <CategoryEyebrow category={article.category} />
+          <CategoryEyebrow category={article.category} asLink={false} />
           <h2 className="font-head font-extrabold uppercase tracking-tight leading-[0.98] text-3xl md:text-5xl mt-2 mb-3 text-pink">
             {article.title}
           </h2>
@@ -120,7 +120,7 @@ export function ArticleCard({
             className="transition-transform duration-500 group-hover:scale-[1.03]"
           />
         </div>
-        <CategoryEyebrow category={article.category} />
+        <CategoryEyebrow category={article.category} asLink={false} />
         <h3 className="font-body font-medium text-lg leading-snug mt-1 mb-1 group-hover:text-pink transition-colors">
           {article.title}
         </h3>

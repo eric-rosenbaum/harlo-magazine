@@ -234,7 +234,8 @@ export const searchQuery = groq`
     title match $q ||
     dek match $q ||
     excerpt match $q ||
-    pt::text(body) match $q
+    pt::text(body) match $q ||
+    count(authors[@->name match $q]) > 0
   )] | order(publishedAt desc)[0...30]{ ${articleCardProjection} }
 `;
 

@@ -32,3 +32,9 @@ export const CATEGORY_PAGE_SIZE = 12;
 
 export const SITE_NAME = "Harlo Magazine";
 export const SITE_TAGLINE = "Culture · Fashion · Music";
+
+/** External Google Form links. */
+export const SUBMIT_PORTFOLIO_URL =
+  "https://docs.google.com/forms/d/e/1FAIpQLSc7Kkt83jMOqz0w0KmbUmhvvwv29TmrS2sbz1XqamxzeSnflA/viewform";
+export const PHYSICAL_COPY_URL =
+  "https://docs.google.com/forms/d/1l5JLDOzCKywXUzd63SEcDSDZR5qPoGR-WyMV6SJbsHU/viewform";

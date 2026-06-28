@@ -55,7 +55,16 @@ export function SocialIcons({
 }) {
   if (!socials?.length) return null;
   return (
-    <ul className={className} style={{ display: "flex", gap: "0.9rem" }}>
+    <ul
+      className={className}
+      style={{
+        display: "flex",
+        gap: "0.9rem",
+        listStyle: "none",
+        margin: 0,
+        padding: 0,
+      }}
+    >
       {socials.map((s) => {
         const Icon = ICONS[s.platform];
         if (!Icon) return null;
