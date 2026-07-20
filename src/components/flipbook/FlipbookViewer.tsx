@@ -48,6 +48,16 @@ export default function FlipbookViewer({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Once the reader picks a mode, stop auto-degrading out from under them.
+  const modeLocked = useRef(false);
+  const setModeAuto = useCallback((next: Mode) => {
+    if (!modeLocked.current) setMode(next);
+  }, []);
+  const chooseMode = useCallback((next: Mode) => {
+    modeLocked.current = true;
+    setMode(next);
+  }, []);
+
   // Measure container + breakpoint.
   useEffect(() => {
     const measure = () => {
@@ -63,9 +73,9 @@ export default function FlipbookViewer({
   // Default to the accessible scroll view when motion is reduced.
   useEffect(() => {
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
-      setMode("scroll");
+      setModeAuto("scroll");
     }
-  }, []);
+  }, [setModeAuto]);
 
   // Track fullscreen.
   useEffect(() => {
@@ -95,10 +105,10 @@ export default function FlipbookViewer({
         pdf.numPages > FLIPBOOK_MAX_PAGES ||
         (sizeBytes && sizeBytes > FLIPBOOK_MAX_BYTES)
       ) {
-        setMode("scroll");
+        setModeAuto("scroll");
       }
     },
-    [sizeBytes]
+    [sizeBytes, setModeAuto]
   );
 
   // Page render width: half the container for two-page spreads, capped.
@@ -167,6 +177,13 @@ export default function FlipbookViewer({
         </div>
 
         <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => chooseMode(mode === "flip" ? "scroll" : "flip")}
+            className="meta hover:text-pink"
+          >
+            {mode === "flip" ? "Scroll view" : "Flip view"}
+          </button>
           {allowDownload ? (
             <a href={url} download className="meta hover:text-pink">
               Download PDF
