@@ -21,7 +21,6 @@ export function FlipbookLoader(props: {
   url: string;
   title: string;
   allowDownload?: boolean;
-  sizeBytes?: number;
 }) {
   return <FlipbookViewer {...props} />;
 }

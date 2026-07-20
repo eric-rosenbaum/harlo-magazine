@@ -12,30 +12,17 @@ import { Document, Page } from "react-pdf";
 import HTMLFlipBook from "react-pageflip";
 import type { PageFlipApi } from "react-pageflip";
 
-import {
-  FLIPBOOK_MAX_BYTES,
-  FLIPBOOK_MAX_PAGES,
-  PDF_OPTIONS,
-} from "./pdfSetup";
-import { LazyPdfPage } from "./LazyPdfPage";
-
-type Mode = "flip" | "scroll";
+import { PDF_OPTIONS } from "./pdfSetup";
 
 interface Props {
   url: string;
   title: string;
   allowDownload?: boolean;
-  sizeBytes?: number;
 }
 
 const MAX_PAGE_WIDTH = 520;
 
-export default function FlipbookViewer({
-  url,
-  title,
-  allowDownload,
-  sizeBytes,
-}: Props) {
+export default function FlipbookViewer({ url, title, allowDownload }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const flipRef = useRef<PageFlipApi>(null);
 
@@ -43,20 +30,10 @@ export default function FlipbookViewer({
   const [aspect, setAspect] = useState(0.7727); // w/h, A4-ish default
   const [containerWidth, setContainerWidth] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
-  const [mode, setMode] = useState<Mode>("flip");
   const [currentPage, setCurrentPage] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Once the reader picks a mode, stop auto-degrading out from under them.
-  const modeLocked = useRef(false);
-  const setModeAuto = useCallback((next: Mode) => {
-    if (!modeLocked.current) setMode(next);
-  }, []);
-  const chooseMode = useCallback((next: Mode) => {
-    modeLocked.current = true;
-    setMode(next);
-  }, []);
 
   // Measure container + breakpoint.
   useEffect(() => {
@@ -70,12 +47,13 @@ export default function FlipbookViewer({
     return () => window.removeEventListener("resize", measure);
   }, []);
 
-  // Default to the accessible scroll view when motion is reduced.
+  // Flip view is the only view, so honour reduced-motion by making the turn
+  // effectively instant rather than by swapping to a different reader.
   useEffect(() => {
-    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
-      setModeAuto("scroll");
-    }
-  }, [setModeAuto]);
+    setReducedMotion(
+      Boolean(window.matchMedia?.("(prefers-reduced-motion: reduce)").matches)
+    );
+  }, []);
 
   // Track fullscreen.
   useEffect(() => {
@@ -100,15 +78,8 @@ export default function FlipbookViewer({
       } catch {
         /* keep default aspect */
       }
-      // Auto-degrade to scroll view for very large / heavy issues.
-      if (
-        pdf.numPages > FLIPBOOK_MAX_PAGES ||
-        (sizeBytes && sizeBytes > FLIPBOOK_MAX_BYTES)
-      ) {
-        setModeAuto("scroll");
-      }
     },
-    [sizeBytes, setModeAuto]
+    []
   );
 
   // Page render width: half the container for two-page spreads, capped.
@@ -126,16 +97,15 @@ export default function FlipbookViewer({
   const goPrev = useCallback(() => flipRef.current?.pageFlip().flipPrev(), []);
   const goNext = useCallback(() => flipRef.current?.pageFlip().flipNext(), []);
 
-  // Keyboard navigation in flip mode.
+  // Keyboard navigation.
   useEffect(() => {
-    if (mode !== "flip") return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "ArrowLeft") goPrev();
       if (e.key === "ArrowRight") goNext();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [mode, goPrev, goNext]);
+  }, [goPrev, goNext]);
 
   const toggleFullscreen = useCallback(() => {
     if (!document.fullscreenElement) {
@@ -159,31 +129,18 @@ export default function FlipbookViewer({
       {/* Controls */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div className="flex items-center gap-2">
-          {mode === "flip" ? (
-            <>
-              <ControlButton onClick={goPrev} label="Previous page">
-                ‹
-              </ControlButton>
-              <span className="meta tabular-nums">
-                {numPages ? `${currentPage + 1} / ${numPages}` : "…"}
-              </span>
-              <ControlButton onClick={goNext} label="Next page">
-                ›
-              </ControlButton>
-            </>
-          ) : (
-            <span className="meta">{numPages} pages</span>
-          )}
+          <ControlButton onClick={goPrev} label="Previous page">
+            ‹
+          </ControlButton>
+          <span className="meta tabular-nums">
+            {numPages ? `${currentPage + 1} / ${numPages}` : "…"}
+          </span>
+          <ControlButton onClick={goNext} label="Next page">
+            ›
+          </ControlButton>
         </div>
 
         <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => chooseMode(mode === "flip" ? "scroll" : "flip")}
-            className="meta hover:text-pink"
-          >
-            {mode === "flip" ? "Scroll view" : "Flip view"}
-          </button>
           {allowDownload ? (
             <a href={url} download className="meta hover:text-pink">
               Download PDF
@@ -217,30 +174,18 @@ export default function FlipbookViewer({
           className="flex justify-center"
         >
           {numPages > 0 && pageWidth > 0 ? (
-            mode === "flip" ? (
-              <FlipBook
-                key={`${pageWidth}x${pageHeight}-${isMobile}`}
-                ref={flipRef}
-                numPages={numPages}
-                pageWidth={pageWidth}
-                pageHeight={pageHeight}
-                isMobile={isMobile}
-                currentPage={currentPage}
-                onFlip={(p) => setCurrentPage(p)}
-                title={title}
-              />
-            ) : (
-              <div className="flex w-full flex-col items-center gap-4 py-2">
-                {Array.from({ length: numPages }, (_, i) => (
-                  <LazyPdfPage
-                    key={i}
-                    pageNumber={i + 1}
-                    width={Math.min(containerWidth, 800)}
-                    aspectRatio={aspect}
-                  />
-                ))}
-              </div>
-            )
+            <FlipBook
+              key={`${pageWidth}x${pageHeight}-${isMobile}`}
+              ref={flipRef}
+              numPages={numPages}
+              pageWidth={pageWidth}
+              pageHeight={pageHeight}
+              isMobile={isMobile}
+              currentPage={currentPage}
+              onFlip={(p) => setCurrentPage(p)}
+              title={title}
+              flippingTime={reducedMotion ? 0 : 700}
+            />
           ) : null}
         </Document>
       )}
@@ -260,9 +205,19 @@ const FlipBook = forwardRef<
     currentPage: number;
     onFlip: (page: number) => void;
     title: string;
+    flippingTime: number;
   }
 >(function FlipBook(
-  { numPages, pageWidth, pageHeight, isMobile, currentPage, onFlip, title },
+  {
+    numPages,
+    pageWidth,
+    pageHeight,
+    isMobile,
+    currentPage,
+    onFlip,
+    title,
+    flippingTime,
+  },
   ref
 ) {
   return (
@@ -280,7 +235,7 @@ const FlipBook = forwardRef<
       mobileScrollSupport
       maxShadowOpacity={0.3}
       drawShadow
-      flippingTime={700}
+      flippingTime={flippingTime}
       className="harlo-flipbook"
       style={{}}
       onFlip={(e) => onFlip(e.data)}

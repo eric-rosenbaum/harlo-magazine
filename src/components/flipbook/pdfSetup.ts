@@ -12,15 +12,6 @@ import "react-pdf/dist/Page/TextLayer.css";
  */
 pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
 
-/**
- * Thresholds for auto-degrading to the scroll/list view. The byte cap is a
- * backstop, not a page-weight budget: Sanity's CDN serves `accept-ranges: bytes`,
- * so PDF.js streams only the pages being viewed rather than the whole file.
- * Real issues run 50–110MB, so a low cap here silently disabled the flipbook.
- */
-export const FLIPBOOK_MAX_PAGES = 80;
-export const FLIPBOOK_MAX_BYTES = 250 * 1024 * 1024; // ~250MB
-
 // Track react-pdf's own pdfjs version so cmaps match the engine.
 export const PDF_OPTIONS = {
   cMapUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/cmaps/`,

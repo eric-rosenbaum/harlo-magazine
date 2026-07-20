@@ -99,7 +99,6 @@ export default async function IssuePage({
               url={issue.pdfUrl}
               title={`Issue ${issue.issueNumber} — ${issue.title}`}
               allowDownload={issue.allowDownload}
-              sizeBytes={issue.pdfSize}
             />
           ) : (
             <EmptyState
