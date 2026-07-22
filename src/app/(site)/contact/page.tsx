@@ -7,7 +7,7 @@ import { SocialIcons } from "@/components/SocialIcons";
 import { buildMetadata } from "@/lib/metadata";
 import type { Page, SiteSettings } from "@/lib/types";
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 async function getData() {
   const [page, settings] = await Promise.all([

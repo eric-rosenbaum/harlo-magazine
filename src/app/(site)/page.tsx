@@ -12,7 +12,7 @@ import { issuePath } from "@/lib/paths";
 import type { ArticleCard as ArticleCardType, HomepageData } from "@/lib/types";
 import { SITE_NAME } from "@/lib/constants";
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 function groupTrending(trending: ArticleCardType[]) {
   const groups: { slug: string; title: string; items: ArticleCardType[] }[] = [];

@@ -7,7 +7,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { buildMetadata } from "@/lib/metadata";
 import type { Page } from "@/lib/types";
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 async function getPage() {
   return sanityFetch<Page>({

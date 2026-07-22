@@ -9,7 +9,7 @@ import { buildMetadata } from "@/lib/metadata";
 import { issuePath } from "@/lib/paths";
 import type { IssueRef } from "@/lib/types";
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 export function generateMetadata(): Metadata {
   return buildMetadata({

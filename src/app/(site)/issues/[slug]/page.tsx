@@ -13,7 +13,7 @@ import { buildMetadata } from "@/lib/metadata";
 import { issuePath } from "@/lib/paths";
 import type { Issue } from "@/lib/types";
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 export async function generateStaticParams() {
   const slugs = await sanityFetch<string[]>({

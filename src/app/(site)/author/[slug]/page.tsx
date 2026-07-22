@@ -11,7 +11,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { buildMetadata } from "@/lib/metadata";
 import type { Author } from "@/lib/types";
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 export async function generateStaticParams() {
   const slugs = await sanityFetch<string[]>({

@@ -36,7 +36,7 @@ export async function sanityFetch<T>({
   query,
   params = {},
   tags = [],
-  revalidate = 60,
+  revalidate = 3600,
 }: FetchOptions): Promise<T | null> {
   if (!isSanityConfigured) {
     return null;

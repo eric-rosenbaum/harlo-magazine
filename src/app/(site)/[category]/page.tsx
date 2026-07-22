@@ -14,7 +14,7 @@ import { buildMetadata } from "@/lib/metadata";
 import { accentHex, CATEGORY_PAGE_SIZE } from "@/lib/constants";
 import type { ArticleCard, CategoryRef } from "@/lib/types";
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 export async function generateStaticParams() {
   const slugs = await sanityFetch<string[]>({
